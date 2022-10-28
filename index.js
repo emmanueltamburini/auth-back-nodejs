@@ -2,18 +2,11 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-//To avoid nodemon crash
-process.once('SIGUSR2', function () {
-    process.kill(process.pid, 'SIGUSR2');
-  });
-  
-process.on('SIGINT', function () {
-  // this is only called on ctrl+c, not restart
-  process.kill(process.pid, 'SIGINT');
-});
-
 //Create server
 const app = express();
+
+//Public directtory
+app.use(express.static('public'));
 
 //CORS
 app.use(cors());
