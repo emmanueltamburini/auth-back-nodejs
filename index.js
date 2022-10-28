@@ -1,5 +1,16 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
+
+//To avoid nodemon crash
+process.once('SIGUSR2', function () {
+    process.kill(process.pid, 'SIGUSR2');
+  });
+  
+process.on('SIGINT', function () {
+  // this is only called on ctrl+c, not restart
+  process.kill(process.pid, 'SIGINT');
+});
 
 //Create server
 const app = express();
@@ -14,7 +25,7 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth.routes'));
 
 //Run server
-app.listen(4000, () => {
-    console.log(`Server is running now in port ${4000}`)
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running now in port ${process.env.PORT}`)
 });
 
