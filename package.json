@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --delay 500ms index.js",
+    "debug": "nodemon --delay 500ms --inspect index.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
