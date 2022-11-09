@@ -34,6 +34,7 @@ const createUser = async (req = request, res = response) => {
       }); 
       
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
         ok: false,
         msg: "Please, contact your admin",
@@ -41,19 +42,57 @@ const createUser = async (req = request, res = response) => {
   }
 };
 
-const login = (req = request, res = response) => {
+const login = async (req = request, res = response) => {
   const { email, password } = req.body;
 
-  return res.json({
-    ok: true,
-    msg: "Login user",
-  });
+  try {
+    const userDb = await User.findOne({email});
+
+    if (!userDb) {
+      return res.status(400).json({
+          ok: false,
+          msg: "Email does not exist",
+      }); 
+    }
+
+    const validPassword = bcrypt.compareSync(password, userDb.password);
+
+    if (!validPassword) {
+      return res.status(400).json({
+          ok: false,
+          msg: "Password does not valid",
+      }); 
+    }
+
+    const token = await generateJWT(userDb.id, userDb.name);
+
+    return res.json({
+      ok: true,
+      uid: userDb.id,
+      token,
+      msg: "User has been login sucessfully",
+    }); 
+      
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: "Please, contact your admin",
+    }); 
+  }
 };
 
-const renew = (req = request, res = response) => {
+const renew = async (req = request, res = response) => {
+  const {uid, name} = req;
+
+  const token = await generateJWT(uid, name);
+
   return res.json({
     ok: true,
-    msg: "Renew token",
+    msg: "Token has been renewed",
+    uid,
+    token,
+    name
   });
 };
 
