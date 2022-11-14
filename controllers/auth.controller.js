@@ -10,7 +10,7 @@ const createUser = async (req = request, res = response) => {
       const user = await User.findOne({email});
 
       if(user) {
-        return res.status(500).json({
+        return res.status(400).json({
             ok: false,
             msg: "There is an user with this email",
           }); 
@@ -21,7 +21,7 @@ const createUser = async (req = request, res = response) => {
       const salt = bcrypt.genSaltSync(10);
       userDb.password = bcrypt.hashSync(password, salt);
 
-      const token = await generateJWT(userDb.id, name);
+      const token = await generateJWT(userDb.id, name, email);
 
       await userDb.save();
 
@@ -29,6 +29,7 @@ const createUser = async (req = request, res = response) => {
         ok: true,
         uid: userDb.id,
         name,
+        email,
         token,
         msg: "User has been created sucessfully",
       }); 
@@ -64,12 +65,13 @@ const login = async (req = request, res = response) => {
       }); 
     }
 
-    const token = await generateJWT(userDb.id, userDb.name);
+    const token = await generateJWT(userDb.id, userDb.name, userDb.email);
 
     return res.json({
       ok: true,
       uid: userDb.id,
       name: userDb.name,
+      email: userDb.email,
       token,
       msg: "User has been login sucessfully",
     }); 
@@ -84,16 +86,26 @@ const login = async (req = request, res = response) => {
 };
 
 const renew = async (req = request, res = response) => {
-  const {uid, name} = req;
+  const { uid } = req;
 
-  const token = await generateJWT(uid, name);
+  const userDb = await User.findById(uid);
+
+  if (!userDb) {
+    return res.status(400).json({
+        ok: false,
+        msg: "User does not exist",
+    }); 
+  }
+
+  const token = await generateJWT(uid, userDb.name, userDb.email);
 
   return res.json({
     ok: true,
     msg: "Token has been renewed",
     uid,
-    token,
-    name
+    name: userDb.name,
+    email: userDb.email,
+    token
   });
 };
 
