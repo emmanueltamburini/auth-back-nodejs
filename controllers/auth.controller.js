@@ -69,6 +69,7 @@ const login = async (req = request, res = response) => {
     return res.json({
       ok: true,
       uid: userDb.id,
+      name: userDb.name,
       token,
       msg: "User has been login sucessfully",
     }); 
