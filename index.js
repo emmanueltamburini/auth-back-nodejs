@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { dbConnection } = require('./db/config');
 require('dotenv').config();
 
@@ -20,6 +21,11 @@ app.use(express.json());
 
 //Routers
 app.use('/api/auth', require('./routes/auth.routes'));
+
+//Managing other routes
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'public/index.html'));
+})
 
 //Run server
 app.listen(process.env.PORT, () => {
